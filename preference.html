@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartTravel | Preferences</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e2e2f7, #f4f4fc);
+      overflow-x: hidden;
+    }
+
+    .back-button {
+      margin: 20px;
+      display: inline-block;
+      font-weight: 500;
+      text-decoration: none;
+      color: #555;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      color: #ff5e5e;
+      transform: translateX(-5px);
+    }
+
+    .container {
+      padding: 40px 20px;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 700px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      animation: slideIn 1s ease-in-out;
+    }
+
+    label {
+      font-weight: 500;
+      margin-top: 10px;
+      display: block;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease;
+    }
+
+    select:focus, button:hover {
+      transform: scale(1.02);
+      border-color: #ff5e5e;
+    }
+
+    .results {
+      max-width: 1000px;
+      margin: 40px auto;
+      animation: fadeIn 2s ease;
+    }
+
+    .place-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 25px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: zoomIn 0.6s ease;
+    }
+
+    .place-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .place-card h4 {
+      color: #ff5e5e;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .place-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      animation: zoomIn 0.6s ease;
+    }
+
+    .footer {
+      background: #111;
+      color: #ccc;
+      padding: 40px 20px;
+      font-size: 14px;
+      position: relative;
+      margin-top: 40px;
+    }
+
+    .footer h5 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .footer a {
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer a:hover {
+      color: #fff;
+    }
+
+    .footer .row > div {
+      margin-bottom: 20px;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 20px;
+      border-top: 1px solid #444;
+      padding-top: 10px;
+      font-size: 13px;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      0% { transform: translateY(30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="home.html" class="back-button">&larr; Back to Home</a>
+
+  <div class="container">
+    <h1>Plan Your Trip</h1>
+    <form id="preferenceForm">
+      <label for="mood">What's your current mood?</label>
+      <select id="mood">
+        <option>Relaxing</option>
+        <option>Adventurous</option>
+        <option>Romantic</option>
+      </select>
+
+      <label for="location">Preferred location</label>
+      <select id="location">
+        <option>Ooty</option>
+        <option>Kodaikanal</option>
+      </select>
+
+      <button type="submit">Suggest Places</button>
+    </form>
+  </div>
+
+  <div class="results container" id="results" style="display:none;">
+    <h2 class="text-center mb-4">Recommended Spots</h2>
+    <div id="placesList" class="row g-4"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3">
+          <h5>SMARTTRAVEL</h5>
+          <p>Your AI-powered travel planner for exploring Tamil Nadu and beyond in the smartest way possible.</p>
+        </div>
+        <div class="col-md-2">
+          <h5>EXPLORE</h5>
+          <a href="#">Home</a><br>
+          <a href="#">Hotels</a><br>
+          <a href="#">Transport</a><br>
+          <a href="#">Map</a>
+        </div>
+        <div class="col-md-2">
+          <h5>USEFUL LINKS</h5>
+          <a href="#">Login</a><br>
+          <a href="#">Language</a><br>
+          <a href="#">Region</a><br>
+          <a href="#">Help</a>
+        </div>
+        <div class="col-md-3">
+          <h5>CONTACT</h5>
+          <p>📍 Coimbatore, Tamil Nadu</p>
+          <p>✉️ smarttravel@example.com</p>
+          <p>📞 +91 98765 43210</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2025 SmartTravel. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const form = document.getElementById("preferenceForm");
+    const results = document.getElementById("results");
+    const placesList = document.getElementById("placesList");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const mood = document.getElementById("mood").value;
+      const location = document.getElementById("location").value;
+      results.style.display = "block";
+      placesList.innerHTML = "";
+
+      let places = [];
+
+      if (location === "Ooty") {
+        places = [
+          { name: "Botanical Garden", img: "car1.jpg" },
+          { name: "Ooty Lake", img: "car1.jpg" },
+          { name: "Doddabetta Peak", img: "car1.jpg" },
+          { name: "Tea Factory", img: "car1.jpg" },
+          { name: "Tea Factory", img: "car1.jpg" },
+          { name: "Pine Forest", img: "car1.jpg" }
+        ];
+      } else if (location === "Kodaikanal") {
+        places = [
+          { name: "Coaker's Walk", img: "car1.jpg" },
+          { name: "Kodai Lake", img: "car1.jpg" },
+          { name: "Silver Cascade Falls", img: "car1.jpg" },
+          { name: "Bryant Park", img: "car1.jpg" },
+          { name: "Bryant Park", img: "car1.jpg" },
+          { name: "Pillar Rocks", img: "car1.jpg" }
+        ];
+      }
+
+      places.forEach((place) => {
+        const card = document.createElement("div");
+        card.className = "col-md-6 col-lg-4";
+        card.innerHTML = `
+          <div class="place-card">
+            <img src="${place.img}" alt="${place.name}">
+            <h4>${place.name}</h4>
+           <button class="btn btn-outline-primary mt-2" onclick="goToHotels('${location}', '${place.name}')">View Hotels</button>
+
+          </div>
+        `;
+        placesList.appendChild(card);
+      });
+    });
+
+    function goToHotels(place, spot) {
+  const query = `hotels.html?place=${encodeURIComponent(place)}&spot=${encodeURIComponent(spot)}`;
+  window.location.href = query;
+}
+
+  </script>
+
+</body>
+</html>

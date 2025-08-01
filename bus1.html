@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bus Booking | SmartTravel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .bus-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .bus-img {
+      width: 320px;
+      height: 200px;
+      border-radius: 15px;
+      object-fit: cover;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .bus-info {
+      flex: 1;
+    }
+    .bus-info h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+    .bus-type {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    .bus-route {
+      font-size: 1.1rem;
+      color: #444;
+      margin-bottom: 0.5rem;
+    }
+    .bus-amenities {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+    .bus-price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #e74c3c;
+      margin-bottom: 0.5rem;
+    }
+    .section {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      animation: slideUp 0.6s ease-out;
+    }
+    .section h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+    .deck {
+      display: flex;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .seat {
+      width: 40px;
+      height: 40px;
+      margin: 6px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+    .seat.selected {
+      background-color: #f76c6c;
+      color: white;
+      transform: scale(1.1);
+    }
+    .seat.sold {
+      background-color: #888;
+      cursor: not-allowed;
+      color: #fff;
+    }
+    .boarding-info {
+      margin-top: 2rem;
+    }
+    .map-section {
+      margin-top: 2rem;
+      height: 400px;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 8px;
+    }
+    .btn-brand {
+      background-color: blanchedalmond;
+      color: #ff0000;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 94, 87, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 94, 87, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 94, 87, 0); }
+    }
+
+    .btn-brand:hover {
+      background-color: var(--brand-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 94, 87, 0.4);
+    }
+
+    .footer {
+      background: #111;
+      color: #eee;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+    .footer-col h4 { margin-bottom: 0.5rem; }
+    .footer-col a {
+      display: block;
+      color: #ccc;
+      margin: 0.3rem 0;
+      text-decoration: none;
+    }
+    .footer-col a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="bus-header">
+      <img id="busImg" class="bus-img" src="g1.avif" alt="Bus" />
+      <div class="bus-info">
+        <h1 id="busName">Bus Name</h1>
+        <div class="bus-type" id="busType">Type</div>
+        <div class="bus-route" id="busRoute">Route</div>
+        <div class="bus-amenities" id="busAmenities">Amenities</div>
+        <div class="bus-price" id="busPrice">₹0</div>
+      </div>
+    </div>
+    <div class="section">
+      <h2>🪑 Select Your Seat</h2>
+      <div class="deck">
+        <div>
+          <h5>Lower Deck</h5>
+          <div class="d-flex flex-wrap" id="lowerDeck"></div>
+        </div>
+        <div>
+          <h5>Upper Deck</h5>
+          <div class="d-flex flex-wrap" id="upperDeck"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <h2>🗺️ Route & Stoppings</h2>
+      <div class="bus-route" id="routeText">Loading route...</div>
+      <div class="map-section">
+        <div id="map"></div>
+      </div>
+      <div class="boarding-info">
+        <h4>🚌 Boarding Points</h4>
+        <ul id="boardingList"></ul>
+      </div>
+    </div>
+  </div>
+  <section class="text-center py-5 bg-white animate-on-scroll">
+    <h2 class="mb-3">Book your seats now!!</h2>
+    <button class="btn btn-brand" onclick="proceedToBooking()">Book now</button>
+  </section>
+  <footer class="footer">
+    <div class="footer-col">
+      <h3>SmartTravel</h3>
+      <p>Explore Tamil Nadu with AI-powered stays & guides.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <a href="home.html">Home</a>
+      <a href="hotels.html">Hotels</a>
+      <a href="#">Transport</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>📍 Coimbatore, TN</p>
+      <p>✉ smarttravel@example.com</p>
+      <p>📞 +91 98765 43210</p>
+    </div>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Bus data (should match bus.html)
+    const buses = [
+      {
+        name: "Ooty Express",
+        from: "Ooty",
+        to: "Chennai",
+        image: "bus.avif",
+        type: "AC Sleeper",
+        price: 1200,
+        amenities: ["AC", "WiFi", "Water Bottle"],
+        route: ["Ooty", "Mettupalayam", "Erode", "Salem", "Vellore", "Chennai"],
+        coords: [
+          [11.4102, 76.6950], // Ooty
+          [11.3019, 76.9346], // Mettupalayam
+          [11.3410, 77.7172], // Erode
+          [11.6643, 78.1460], // Salem
+          [12.9165, 79.1325], // Vellore
+          [13.0827, 80.2707]  // Chennai
+        ],
+        boarding: ["Ooty Main Bus Stand", "Mettupalayam Junction"]
+      },
+      {
+        name: "Nilgiri Deluxe",
+        from: "Ooty",
+        to: "Erode",
+        image: "bus.avif",
+        type: "Non-AC Sleeper",
+        price: 900,
+        amenities: ["Sleeper", "Charging Point"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore", "Erode"],
+        coords: [
+          [11.4102, 76.6950], // Ooty
+          [11.3019, 76.9346], // Mettupalayam
+          [11.0168, 76.9558], // Coimbatore
+          [11.3410, 77.7172]  // Erode
+        ],
+        boarding: ["Ooty Main Bus Stand", "Coimbatore Junction"]
+      },
+      {
+        name: "Salem Superfast",
+        from: "Ooty",
+        to: "Salem",
+        image: "bus.avif",
+        type: "AC Seater",
+        price: 800,
+        amenities: ["AC", "Seater", "Snacks"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore", "Salem"],
+        coords: [
+          [11.4102, 76.6950], // Ooty
+          [11.3019, 76.9346], // Mettupalayam
+          [11.0168, 76.9558], // Coimbatore
+          [11.6643, 78.1460]  // Salem
+        ],
+        boarding: ["Ooty Main Bus Stand", "Coimbatore Junction"]
+      },
+      {
+        name: "Coimbatore Comfort",
+        from: "Ooty",
+        to: "Coimbatore",
+        image: "bus.avif",
+        type: "Non-AC Seater",
+        price: 600,
+        amenities: ["Seater", "Water Bottle"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore"],
+        coords: [
+          [11.4102, 76.6950], // Ooty
+          [11.3019, 76.9346], // Mettupalayam
+          [11.0168, 76.9558]  // Coimbatore
+        ],
+        boarding: ["Ooty Main Bus Stand", "Mettupalayam Junction"]
+      },
+      {
+        name: "Kodai Scenic",
+        from: "Ooty",
+        to: "Kodaikanal",
+        image: "bus.avif",
+        type: "AC Sleeper",
+        price: 1500,
+        amenities: ["AC", "Sleeper", "Snacks"],
+        route: ["Ooty", "Coimbatore", "Palani", "Kodaikanal"],
+        coords: [
+          [11.4102, 76.6950], // Ooty
+          [11.0168, 76.9558], // Coimbatore
+          [10.4500, 77.5206], // Palani
+          [10.2381, 77.4892]  // Kodaikanal
+        ],
+        boarding: ["Ooty Main Bus Stand", "Coimbatore Junction"]
+      }
+    ];
+    // Get params
+    const params = new URLSearchParams(window.location.search);
+    const busName = params.get("bus");
+    const from = params.get("from");
+    const to = params.get("to");
+    // Find bus
+    const bus = buses.find(b => b.name === busName && b.from === from && b.to === to) || buses.find(b => b.name === busName);
+    // Populate details
+    if (bus) {
+      document.getElementById("busImg").src = bus.image;
+      document.getElementById("busName").textContent = bus.name;
+      document.getElementById("busType").textContent = bus.type;
+      document.getElementById("busRoute").textContent = `Route: ${bus.route.join(" → ")}`;
+      document.getElementById("busAmenities").textContent = `Amenities: ${bus.amenities.join(", ")}`;
+      document.getElementById("busPrice").textContent = `₹${bus.price}`;
+      document.getElementById("routeText").textContent = `Route: ${bus.route.join(" → ")}`;
+      // Boarding points
+      const boardingList = document.getElementById("boardingList");
+      boardingList.innerHTML = "";
+      bus.boarding.forEach(point => {
+        const li = document.createElement("li");
+        li.textContent = point;
+        boardingList.appendChild(li);
+      });
+    }
+    // Seat selection (same animation as before)
+    function createSeats(deckId) {
+      for (let i = 1; i <= 20; i++) {
+        const seat = document.createElement("div");
+        seat.className = "seat";
+        seat.textContent = i;
+        if (Math.random() > 0.7) {
+          seat.classList.add("sold");
+        } else {
+          seat.addEventListener("click", () => {
+            seat.classList.toggle("selected");
+          });
+        }
+        deckId.appendChild(seat);
+      }
+    }
+
+    // Function to get selected seats
+    function getSelectedSeats() {
+      const selectedSeats = [];
+      document.querySelectorAll('.seat.selected').forEach(seat => {
+        selectedSeats.push(seat.textContent);
+      });
+      return selectedSeats;
+    }
+
+    // Function to proceed to booking
+    function proceedToBooking() {
+      const selectedSeats = getSelectedSeats();
+      
+      if (selectedSeats.length === 0) {
+        alert('Please select at least one seat before proceeding to booking.');
+        return;
+      }
+
+      // Build URL with all necessary parameters
+      const checkoutUrl = `checkout.html?bus=${encodeURIComponent(bus.name)}&from=${encodeURIComponent(bus.from)}&to=${encodeURIComponent(bus.to)}&seats=${encodeURIComponent(selectedSeats.join(','))}`;
+      
+      window.location.href = checkoutUrl;
+    }
+    createSeats(document.getElementById("lowerDeck"));
+    createSeats(document.getElementById("upperDeck"));
+    // Map with route and stoppings
+    if (bus && bus.coords && bus.coords.length > 1) {
+      const map = L.map('map').setView(bus.coords[0], 8);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      // Markers for stoppings
+      bus.coords.forEach((coord, idx) => {
+        L.marker(coord).addTo(map).bindPopup(bus.route[idx]);
+      });
+      // Draw route using OpenRouteService
+      const orsKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ4NTkzNzdjMjQ4MDQyMTlhNzdiMDA2NjkyOTJiZGYyIiwiaCI6Im11cm11cjY0In0=";
+      const coordsStr = bus.coords.map(c => c[1] + ',' + c[0]).join('|');
+      fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${orsKey}&start=${bus.coords[0][1]},${bus.coords[0][0]}&end=${bus.coords[bus.coords.length-1][1]},${bus.coords[bus.coords.length-1][0]}&via=${bus.coords.slice(1,-1).map(c=>c[1]+','+c[0]).join('|')}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.features && data.features[0]) {
+            const coords = data.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+            L.polyline(coords, {color: '#f76c6c', weight: 5}).addTo(map);
+            map.fitBounds(L.polyline(coords).getBounds(), {padding: [30,30]});
+          }
+        })
+        .catch(() => {
+          // fallback: draw straight lines
+          L.polyline(bus.coords, {color: '#f76c6c', weight: 5, dashArray: '8 8'}).addTo(map);
+        });
+    }
+  </script>
+</body>
+</html>

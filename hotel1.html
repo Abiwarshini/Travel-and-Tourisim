@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Hotel - Book Now</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #cdd0dc 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+           
+           
+            border: none;
+           
+            padding: 15px 20px;
+            color: rgb(0, 0, 0);
+            
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+ 
+        }
+
+        .back-btn:hover {
+            transform: translateX(-4px);
+           color: red;
+           cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 20px;
+        }
+
+        .hotel-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .hotel-images {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+            height: 300px;
+        }
+
+        .hotel-img {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .hotel-img:hover {
+            transform: scale(1.05);
+        }
+
+        .hotel-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hotel-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .hotel-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+
+        .meal-option {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+       .map-container {
+  height: 300px;
+  background: linear-gradient(45deg, #74b9ff, #0984e3);
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: mapPulse 3s ease-in-out infinite;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .room-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .room-type {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .room-price {
+            font-size: 1.5rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .policies {
+            list-style: none;
+        }
+
+        .policies li {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #74b9ff;
+            transition: transform 0.2s ease;
+        }
+
+        .policies li:hover {
+            transform: translateX(5px);
+        }
+
+        .review-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .rating-display {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .rating-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .add-review {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+        }
+
+        .review-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .book-btn {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            font-size: 1.1rem;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes mapPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hotel-images {
+                grid-template-columns: 1fr;
+                height: 200px;
+            }
+            
+            .review-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .hotel-info h1 {
+                font-size: 2rem;
+            }
+        }
+
+footer {
+  background-color: #101820;
+  color: #ffffff;
+  padding: 3rem 0 1.5rem;
+  font-family: 'Arial', sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.footer-column {
+  flex: 1 1 200px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-column h5 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.footer-column p,
+.footer-column a {
+  font-size: 0.95rem;
+  color: #ffffff;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.footer-column a:hover {
+  color: #74b9ff;
+}
+
+.footer-column i {
+  margin-right: 8px;
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 1rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-column {
+    margin-bottom: 2rem;
+  }
+}
+
+    </style>
+ 
+</head>
+<body>
+   <p class="back-btn" onclick="goBack()">← Back to hotels</p>
+
+    <div class="container">
+        <!-- Hotel Header -->
+        <div class="hotel-header">
+            <div class="hotel-images">
+                <div class="hotel-img">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop" alt="Hotel Main">
+                </div>
+                <div class="hotel-img">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop" alt="Hotel Room">
+                </div>
+                <div class="hotel-img">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop" alt="Hotel Lobby">
+                </div>
+            </div>
+            
+            <div class="hotel-info">
+                <h1>City Hotel</h1>
+                <div class="hotel-rating">
+                    <div class="stars">★★★★☆</div>
+                    <span>4.2 (128 reviews)</span>
+                </div>
+                <div class="price">₹1500 <span style="font-size: 1rem; color: #666;">per night</span></div>
+                <div class="meal-option">
+                    <label>
+                        <input type="checkbox" id="includeMeals"> Include Meals (+₹500)
+                    </label>
+                </div>
+                <button class="book-btn" onclick="bookHotel()">Book Now</button>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="section">
+            <h2>📍 Location</h2>
+            <div class="map-container">
+               <div id="map" class="map-container"></div>
+
+            </div>
+        </div>
+
+        <!-- Rooms Section -->
+        <div class="section">
+            <h2>🏠 Available Rooms</h2>
+            <div class="rooms-grid">
+                <div class="room-card">
+                    <div class="room-type">Standard Room</div>
+                    <div class="room-price">₹1200</div>
+                    <p>• 1 Double Bed</p>
+                    <p>• AC & WiFi</p>
+                    <p>• 15 Available</p>
+                    <div class="meal-option">
+                        <label><input type="checkbox"> Include Meals (+₹400)</label>
+                    </div>
+                </div>
+                <div class="room-card">
+                    <div class="room-type">Deluxe Room</div>
+                    <div class="room-price">₹1800</div>
+                    <p>• 1 King Bed</p>
+                    <p>• AC, WiFi & Balcony</p>
+                    <p>• 8 Available</p>
+                    <div class="meal-option">
+                        <label><input type="checkbox"> Include Meals (+₹600)</label>
+                    </div>
+                </div>
+                <div class="room-card">
+                    <div class="room-type">Suite</div>
+                    <div class="room-price">₹2500</div>
+                    <p>• 1 King Bed + Living</p>
+                    <p>• Premium Amenities</p>
+                    <p>• 3 Available</p>
+                    <div class="meal-option">
+                        <label><input type="checkbox"> Include Meals (+₹800)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policies Section -->
+        <div class="section">
+            <h2>📋 Hotel Policies</h2>
+            <ul class="policies">
+                <li>Check-in: 2:00 PM | Check-out: 12:00 PM</li>
+                <li>Cancellation allowed up to 24 hours before check-in</li>
+                <li>Valid ID proof required at check-in</li>
+                <li>No smoking allowed in rooms</li>
+                <li>Pets allowed with prior approval</li>
+                <li>Complimentary WiFi available throughout the hotel</li>
+                <li>Room service available 24/7</li>
+            </ul>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="section">
+            <h2>⭐ Reviews & Ratings</h2>
+            <div class="review-section">
+                <div class="rating-display">
+                    <div class="rating-number">4.2</div>
+                    <div class="stars">★★★★☆</div>
+                    <p>Based on 128 reviews</p>
+                </div>
+                
+                <div class="add-review">
+                    <h3>Add Your Review</h3>
+                    <div class="star-rating">
+                        <span class="star" onclick="setRating(1)">★</span>
+                        <span class="star" onclick="setRating(2)">★</span>
+                        <span class="star" onclick="setRating(3)">★</span>
+                        <span class="star" onclick="setRating(4)">★</span>
+                        <span class="star" onclick="setRating(5)">★</span>
+                    </div>
+                    <textarea class="review-input" placeholder="Write your review here..." rows="4"></textarea>
+                    <button class="submit-btn">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  <footer>
+    <footer>
+  <div class="footer-container">
+    <div class="footer-column">
+      <h5>SmartTravel</h5>
+      <p>Your AI-powered travel planner for exploring Tamil Nadu and beyond in the smartest way possible.</p>
+    </div>
+    <div class="footer-column">
+      <h5>Explore</h5>
+      <a href="#home">Home</a>
+      <a href="#hotels">Hotels</a>
+      <a href="#transport">Transport</a>
+      <a href="#map">Map</a>
+    </div>
+    <div class="footer-column">
+      <h5>Useful Links</h5>
+      <a href="#login">Login</a>
+      <a href="#language">Language</a>
+      <a href="#region">Region</a>
+      <a href="#help">Help</a>
+    </div>
+    <div class="footer-column">
+      <h5>Contact</h5>
+      <p><i class="bi bi-geo-alt-fill"></i> Coimbatore, Tamil Nadu</p>
+      <p><i class="bi bi-envelope-fill"></i> smarttravel@example.com</p>
+      <p><i class="bi bi-telephone-fill"></i> +91 98765 43210</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2025 SmartTravel. All Rights Reserved.
+  </div>
+</footer> <!-- same footer HTML + icons as you posted -->
+  </footer>
+  <script>
+  // 1. Hotel data with coordinates
+  const hotels = [
+    { name: "Grand Palace Resort", lat: 10.2354, lon: 77.4908, price: 8000, rating: 5, foodCost: 1500 },
+    { name: "Ocean View Hotel", lat: 11.4069, lon: 76.7106, price: 5000, rating: 4, foodCost: 1000 },
+    { name: "Hilltop Villa", lat: 10.2365, lon: 77.4932, price: 12000, rating: 5, foodCost: 2000 },
+    { name: "City Hostel", lat: 11.4062, lon: 76.7075, price: 1500, rating: 3, foodCost: 500 },
+    { name: "Luxury Homestay", lat: 11.4075, lon: 76.7121, price: 6000, rating: 4, foodCost: 1200 },
+    { name: "Budget Inn", lat: 10.2391, lon: 77.4950, price: 2000, rating: 3, foodCost: 400 },
+    { name: "Heritage Hotel", lat: 11.4088, lon: 76.7089, price: 7000, rating: 4, foodCost: 800 },
+    { name: "Cozy Homestay", lat: 11.4050, lon: 76.7095, price: 2500, rating: 4, foodCost: 700 },
+    { name: "Mountain View Cottage", lat: 10.2380, lon: 77.4920, price: 5500, rating: 4, foodCost: 900 }
+  ];
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("hotel");
+    const h = hotels.find(h => h.name === name);
+
+    if (!h) {
+      document.body.innerHTML = "<p>Hotel not found.</p>";
+      return;
+    }
+
+    // Populate page content
+    document.querySelector(".hotel-images img:nth-child(1)").src = h.image || document.querySelector(".hotel-images img:nth-child(1)").src;
+    document.querySelector(".hotel-info h1").textContent = h.name;
+    const starEl = document.querySelector(".hotel-info .stars");
+    if (starEl) starEl.textContent = "★".repeat(h.rating) + "☆";
+    const ratingSpan = document.querySelector(".hotel-info span");
+    if (ratingSpan) ratingSpan.textContent = `${h.rating}.0 (– reviews)`;
+
+    document.querySelector(".price").innerHTML = `₹${h.price} <span style="font-size:1rem;color:#666;">per night</span>`;
+
+    const mealCheckbox = document.getElementById("includeMeals");
+    mealCheckbox.addEventListener("change", () => {
+      const total = h.price + (mealCheckbox.checked ? h.foodCost : 0);
+      document.querySelector(".price").innerHTML = `₹${total} <span style="font-size:1rem;color:#666;">per night</span>`;
+    });
+
+    // Initialize map
+    const map = L.map("map").setView([h.lat, h.lon], 15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Hotel marker
+    L.marker([h.lat, h.lon]).addTo(map)
+      .bindPopup(`<b>${h.name}</b>`).openPopup();
+
+    // Nearby restaurants
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node["amenity"="restaurant"](around:500,${h.lat},${h.lon}););out;`;
+    fetch(overpassUrl)
+      .then(res => res.json())
+      .then(data => {
+        data.elements.forEach(place => {
+          const pname = place.tags.name || "Restaurant";
+          L.marker([place.lat, place.lon], {
+            icon: L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/1046/1046784.png", iconSize: [25,25] })
+          }).addTo(map).bindPopup(`<b>${pname}</b><br>🍽️ Nearby Restaurant`);
+        });
+      }).catch(console.error);
+
+    // Star rating interactivity
+    let currentRating = 0;
+    document.querySelectorAll('.star').forEach((star, i) => {
+      star.addEventListener("click", () => {
+        currentRating = i + 1;
+        document.querySelectorAll('.star').forEach((s, idx) => s.classList.toggle('active', idx < currentRating));
+      });
+    });
+
+    // Intersection animations
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.animationFillMode = 'both';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.section').forEach(sec => observer.observe(sec));
+    document.querySelectorAll('.room-card').forEach(card => {
+      card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px) scale(1.02)');
+      card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0) scale(1)');
+    });
+  });
+
+  function goBack() { window.history.back(); }
+
+  function bookHotel() {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("hotel");
+    const nights = 1; // You can enhance this to get user input for nights
+    const meal = document.getElementById("includeMeals").checked ? 1 : 0;
+    let url = `hotel-checkout.html?hotel=${encodeURIComponent(name)}&nights=${nights}`;
+    if (meal) url += `&meals=1`;
+    window.location.href = url;
+  }
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</body>
+</html>

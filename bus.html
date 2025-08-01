@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartTravel | Bus Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      color: #222;
+    }
+    .navbar {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0);
+      display: flex;
+      justify-content: center;
+      z-index: 1000;
+      transition: all 0.4s ease;
+    }
+    .navbar.scrolled {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .nav-content {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      transition: color 0.3s ease;
+    }
+    .navbar.scrolled .logo {
+      color: #000;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: white;
+      transition: color 0.3s ease;
+    }
+    .navbar.scrolled .nav-links a {
+      color: #333;
+    }
+    .nav-links a:hover {
+      color: #f76c6c;
+    }
+    .hero {
+      background: url('g1.avif') no-repeat center center/cover;
+      height: 40vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 25px;
+      text-shadow: #000 2px 2px 4px;
+      color: white;
+      text-align: center;
+      padding-top: 60px;
+    }
+    .hero-content {
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+    }
+    .filters {
+      background: #fff;
+      padding: 1rem 2rem;
+      margin: 0 auto;
+      max-width: 1100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      position: sticky;
+      top: 80px;
+      z-index: 999;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .filter-row select,
+    .filter-row input[type="date"] {
+      flex: 1 1 150px;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .buses {
+      max-width: 1200px;
+      margin: 2rem auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      padding: 0 2rem;
+    }
+    .bus-card {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.7s ease forwards;
+      opacity: 0;
+    }
+    .bus-card:hover {
+      transform: translateY(-5px);
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .bus-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .bus-content {
+      padding: 1rem;
+    }
+    .bus-content h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+    .amenities {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .price {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    .book-btn {
+      margin-top: 1rem;
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: #f76c6c;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .book-btn:hover {
+      background: #d94c4c;
+    }
+    .footer {
+      background: #111;
+      color: #eee;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      padding: 2rem;
+    }
+    .footer-col h4 { margin-bottom: 0.5rem; }
+    .footer-col a {
+      display: block;
+      color: #ccc;
+      margin: 0.3rem 0;
+      text-decoration: none;
+    }
+    .btn-brand {
+      background-color: #f76c6c;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 94, 87, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 94, 87, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 94, 87, 0); }
+    }
+    .btn-brand:hover {
+      background-color: #d94c4c;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 94, 87, 0.4);
+    }
+    .footer-col a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="nav-content">
+      <div class="logo">SmartTravel</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="hotels.html">Hotels</a></li>
+        <li><a href="#">Transport</a></li>
+        <li><a href="map.html">Map</a></li>
+        <li><a href="#">Login</a></li>
+      </ul>
+    </div>
+  </div>
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Book Your Bus Journey</h1>
+      <p>Find and book buses between Ooty, Chennai, Erode, Salem, Coimbatore, and Kodaikanal.</p>
+    </div>
+  </header>
+  <section class="filters">
+    <div class="filter-row">
+      <select id="fromPlace">
+        <option value="">From</option>
+        <option value="Ooty">Ooty</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Erode">Erode</option>
+        <option value="Salem">Salem</option>
+        <option value="Coimbatore">Coimbatore</option>
+        <option value="Kodaikanal">Kodaikanal</option>
+      </select>
+      <select id="toPlace">
+        <option value="">To</option>
+        <option value="Ooty">Ooty</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Erode">Erode</option>
+        <option value="Salem">Salem</option>
+        <option value="Coimbatore">Coimbatore</option>
+        <option value="Kodaikanal">Kodaikanal</option>
+      </select>
+      <input type="date" id="journeyDate" />
+      <select id="busType">
+        <option value="">Bus Type</option>
+        <option value="AC Sleeper">AC Sleeper</option>
+        <option value="Non-AC Sleeper">Non-AC Sleeper</option>
+        <option value="AC Seater">AC Seater</option>
+        <option value="Non-AC Seater">Non-AC Seater</option>
+      </select>
+    </div>
+  </section>
+  <section class="buses" id="busesGrid"></section>
+  <footer class="footer">
+    <div class="footer-col">
+      <h3>SmartTravel</h3>
+      <p>Explore Tamil Nadu with AI-powered stays & guides.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <a href="home.html">Home</a>
+      <a href="hotels.html">Hotels</a>
+      <a href="#">Transport</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>📍 Coimbatore, TN</p>
+      <p>✉ smarttravel@example.com</p>
+      <p>📞 +91 98765 43210</p>
+    </div>
+  </footer>
+  <script>
+    const buses = [
+      {
+        name: "Ooty Express",
+        from: "Ooty",
+        to: "Chennai",
+        image: "bus.avif",
+        type: "AC Sleeper",
+        price: 1200,
+        amenities: ["AC", "WiFi", "Water Bottle"],
+        route: ["Ooty", "Mettupalayam", "Erode", "Salem", "Vellore", "Chennai"]
+      },
+      {
+        name: "Nilgiri Deluxe",
+        from: "Ooty",
+        to: "Erode",
+        image: "bus.avif",
+        type: "Non-AC Sleeper",
+        price: 900,
+        amenities: ["Sleeper", "Charging Point"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore", "Erode"]
+      },
+      {
+        name: "Salem Superfast",
+        from: "Ooty",
+        to: "Salem",
+        image: "bus.avif",
+        type: "AC Seater",
+        price: 800,
+        amenities: ["AC", "Seater", "Snacks"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore", "Salem"]
+      },
+      {
+        name: "Coimbatore Comfort",
+        from: "Ooty",
+        to: "Coimbatore",
+        image: "bus.avif",
+        type: "Non-AC Seater",
+        price: 600,
+        amenities: ["Seater", "Water Bottle"],
+        route: ["Ooty", "Mettupalayam", "Coimbatore"]
+      },
+      {
+        name: "Kodai Scenic",
+        from: "Ooty",
+        to: "Kodaikanal",
+        image: "bus.avif",
+        type: "AC Sleeper",
+        price: 1500,
+        amenities: ["AC", "Sleeper", "Snacks"],
+        route: ["Ooty", "Coimbatore", "Palani", "Kodaikanal"]
+      }
+    ];
+    function filterBuses() {
+      const from = document.getElementById("fromPlace").value;
+      const to = document.getElementById("toPlace").value;
+      const type = document.getElementById("busType").value;
+      let filtered = buses;
+      if (from) filtered = filtered.filter(b => b.from === from);
+      if (to) filtered = filtered.filter(b => b.to === to);
+      if (type) filtered = filtered.filter(b => b.type === type);
+      renderBuses(filtered);
+    }
+    function renderBuses(data) {
+      const grid = document.getElementById("busesGrid");
+      grid.innerHTML = "";
+      if (data.length === 0) {
+        grid.innerHTML = `<p>No buses found for your selection.</p>`;
+        return;
+      }
+      data.forEach(b => {
+        const div = document.createElement("div");
+        div.className = "bus-card";
+        div.innerHTML = `
+          <img src="${b.image}" />
+          <div class="bus-content">
+            <h3>${b.name}</h3>
+            <div class="amenities">${b.type} | ${b.amenities.join(" | ")}</div>
+            <div class="route">Route: ${b.route.join(" → ")}</div>
+            <div class="price">₹${b.price}</div>
+            <button class="book-btn" onclick="window.location.href='bus1.html?bus='+encodeURIComponent('${b.name}')+'&from='+encodeURIComponent('${b.from}')+'&to='+encodeURIComponent('${b.to}')">Book Now</button>
+          </div>`;
+        grid.appendChild(div);
+      });
+    }
+    document.getElementById("fromPlace").addEventListener("change", filterBuses);
+    document.getElementById("toPlace").addEventListener("change", filterBuses);
+    document.getElementById("busType").addEventListener("change", filterBuses);
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBuses(buses);
+    });
+  </script>
+</body>
+</html>
